@@ -5,22 +5,23 @@ from email.policy import default
 import pandas as pd
 from tqdm import tqdm
 
-ORG_EMAIL   = "@gmail.com"
-SMTP_SERVER = "imap.gmail.com"
-SMTP_PORT   = 993
 
 
 
 
+def catch_server(FROM_EMAIL):
+    server_part=re.findall(r'@.+com',FROM_EMAIL)[0]
+    return server_part
 
 def create_connection(FROM_EMAIL,FROM_PWD):
-    SMTP_SERVER = "imap.gmail.com"
+    ORG_EMAIL=catch_server(FROM_EMAIL)
     SMTP_PORT   = 993
+    SMTP_SERVER='imap.'+ORG_EMAIL[1:]
     mail = imaplib.IMAP4_SSL(SMTP_SERVER)
     mail.login(FROM_EMAIL,FROM_PWD)
     return mail
 
-def load_data():
+def load_data(mail,num):
     mail.select('inbox')
     type_, data = mail.search(None, 'ALL')
     mail_ids = data[0]
@@ -31,20 +32,19 @@ def load_data():
     
     mail_list=[]
     df_mail=pd.DataFrame(columns=['id','source','subject'])
-    ids=data[0].split()[-5000:-1]
+    ids=data[0].split()[num*(-1):-1]
     for num in progressbar(ids, redirect_stdout=True):
         typ, data_ = mail.fetch(num, '(RFC822)')
         msg_uid=data_[0][0]
         msg = email.message_from_bytes(data_[0][1],policy=default)
         mail_list.append(msg)
         df_mail=df_mail.append({'id':num,'from':msg['source'],'subject':msg['subject']},ignore_index=True)
-        df_mail.to_csv('mail_list.csv',index=False)
+    return df_mail
 
 
-def move_mail(df):
+def move_mail(df,mail):
     for cluster in df.cluster.unique():
         results={}
-        mail=create_connection(FROM_EMAIL,FROM_PWD,ORG_EMAIL,SMTP_SERVER)
         mailbox='label_{}'.format(str(cluster)[0])
         print(mailbox)
         results['create']=mail.create(mailbox)

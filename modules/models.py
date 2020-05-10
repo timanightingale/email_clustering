@@ -17,7 +17,6 @@ def train_doc2vec(documents,epochs,
     for epoch in range(epochs):
         print("epoch "+str(epoch))
         model.train(documents, total_examples=count, epochs=1)
-        model.save('mail.model')
         model.alpha -= 0.002  # decrease the learning rate
         model.min_alpha = model.alpha
     return model

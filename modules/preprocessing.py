@@ -34,8 +34,8 @@ def preprocess(line):
     
     line=line.lower()
     return line
-def preprocess_dataset(filename,model):
-    df=pd.read_csv(filename)
+def preprocess_dataset(df,model):
+    
     df=df[~df.subject.isna()]
     df.emoji=df.subject.apply(lambda x:int(check_emoji(x)))
     df.capslock=df.subject.apply(lambda x:int(check_capslock(x)))
