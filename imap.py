@@ -5,8 +5,10 @@ from email.policy import default
 import pandas as pd
 from tqdm import tqdm
 
-FROM_EMAIL  = "ursol.toma" + ORG_EMAIL
-FROM_PWD    = "WeWeWe11"
+ORG_EMAIL   = "@gmail.com"
+SMTP_SERVER = "imap.gmail.com"
+SMTP_PORT   = 993
+
 
 
 
